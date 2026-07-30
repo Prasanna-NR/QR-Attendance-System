@@ -1,6 +1,6 @@
 # QR Attendance & Task Management System
 
-A production-ready web application built with Python Flask for automated attendance tracking using QR codes and task management.
+A complete Progressive Web App (PWA) built with Python Flask. Features QR code generation & scanning, user authentication with RBAC, real-time attendance tracking, task management, admin dashboard with live user monitoring, PWA support, offline access, and CSV report generation.
 
 ## Features
 
