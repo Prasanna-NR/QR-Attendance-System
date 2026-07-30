@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}QR Attendance System{% endblock %}</title>
     
-    
+    <!-- ==================== PWA META TAGS ==================== -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Attendance">
     <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
     
-    
+    <!-- ==================== CSS ==================== -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -119,7 +119,7 @@
             color: #6c757d;
         }
         
-        /* PWA Install Banner */
+        /* ==================== PWA INSTALL BANNER ==================== */
         .install-banner {
             display: none;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -141,7 +141,7 @@
             cursor: pointer;
         }
         
-        /* Network Status */
+        /* ==================== NETWORK STATUS ==================== */
         .network-status {
             position: fixed;
             bottom: 20px;
@@ -169,6 +169,7 @@
             50% { transform: scale(1.05); }
         }
         
+        /* ==================== RESPONSIVE ==================== */
         @media (max-width: 768px) {
             .display-4 { font-size: 2rem; }
             .container { padding-left: 10px; padding-right: 10px; }
@@ -186,7 +187,7 @@
     </style>
 </head>
 <body>
-    
+    <!-- ==================== PWA INSTALL BANNER ==================== -->
     <div id="install-banner" class="install-banner">
         <span>
             <i class="fas fa-mobile-alt me-2"></i>
@@ -200,7 +201,7 @@
         </div>
     </div>
 
-    
+    <!-- ==================== NAVBAR ==================== -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
@@ -238,7 +239,7 @@
         </div>
     </nav>
 
-    
+    <!-- ==================== MAIN CONTENT ==================== -->
     <div class="container mt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -254,7 +255,7 @@
         {% block content %}{% endblock %}
     </div>
 
-    
+    <!-- ==================== FOOTER ==================== -->
     <footer class="bg-light text-center text-muted py-3 mt-5">
         <div class="container">
             &copy; 2026 QR Attendance & Task Management System
@@ -263,7 +264,7 @@
         </div>
     </footer>
 
-    
+    <!-- ==================== NETWORK STATUS ==================== -->
     <div id="network-status" class="network-status online">
         <i class="fas fa-wifi me-1"></i> Online
     </div>
@@ -272,9 +273,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    
+    <!-- ==================== PWA COMPLETE SCRIPT ==================== -->
     <script>
-        
+        // ============================================================
+        // PWA INSTALLATION PROMPT
+        // ============================================================
         let deferredPrompt;
         const installBanner = document.getElementById('install-banner');
         const installBtn = document.getElementById('install-btn');
@@ -301,30 +304,72 @@
             installBanner.classList.remove('show');
         });
 
-        
+        // ============================================================
+        // PWA SERVICE WORKER REGISTRATION (ENHANCED)
+        // ============================================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 console.log('🔄 PWA: Registering Service Worker...');
                 
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(function(registration) {
-                        console.log('✅ PWA: Service Worker registered!');
+                        console.log('✅ PWA: Service Worker registered successfully!');
                         console.log('📋 PWA: Scope:', registration.scope);
+                        
+                        // Check if there's an update waiting
+                        if (registration.waiting) {
+                            console.log('🔄 PWA: Update waiting, skipping...');
+                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', function() {
+                            console.log('🔄 PWA: New service worker found!');
+                            const newWorker = registration.installing;
+                            
+                            newWorker.addEventListener('statechange', function() {
+                                console.log('📊 PWA: Service Worker state:', newWorker.state);
+                                
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 PWA: New update available! Reload to update.');
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
                     })
                     .catch(function(err) {
-                        console.error('❌ PWA: Registration failed:', err);
+                        console.error('❌ PWA: Service Worker registration failed:', err);
                     });
             });
+        } else {
+            console.warn('⚠️ PWA: Service Workers not supported in this browser');
         }
 
-        
+        // ============================================================
+        // CHECK INSTALLED STATUS
+        // ============================================================
         if (window.matchMedia('(display-mode: standalone)').matches) {
             console.log('📱 PWA: Running in standalone mode');
             document.body.classList.add('pwa-installed');
             installBanner.classList.remove('show');
         }
 
-        
+        // ============================================================
+        // CHECK ANDROID INSTALL STATUS
+        // ============================================================
+        // Check if running on Android
+        const isAndroid = /android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            console.log('📱 PWA: Android device detected');
+            // Check if installed as PWA
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 PWA: Not installed yet - look for install prompt');
+            }
+        }
+
+        // ============================================================
+        // NETWORK STATUS
+        // ============================================================
         const networkStatus = document.getElementById('network-status');
 
         function updateNetworkStatus() {
@@ -346,10 +391,43 @@
         window.addEventListener('offline', updateNetworkStatus);
         setTimeout(updateNetworkStatus, 1000);
 
-       
-        console.log('📱 PWA: Service Worker:', 'serviceWorker' in navigator ? '✅' : '❌');
-        console.log('📱 PWA: Manifest:', document.querySelector('link[rel="manifest"]') ? '✅' : '❌');
-        console.log('📱 PWA: HTTPS:', window.location.protocol === 'https:' || window.location.hostname === 'localhost' ? '✅' : '⚠️');
+        // ============================================================
+        // SHOW UPDATE NOTIFICATION
+        // ============================================================
+        function showUpdateNotification() {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            
+            const updateMsg = document.createElement('div');
+            updateMsg.className = 'alert alert-info alert-dismissible fade show';
+            updateMsg.innerHTML = `
+                <i class="fas fa-sync-alt me-2"></i>
+                <strong>New version available!</strong> 
+                <button onclick="location.reload()" class="btn btn-primary btn-sm ms-2">
+                    Update Now
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            container.prepend(updateMsg);
+        }
+
+        // ============================================================
+        // PWA SUPPORT CHECK
+        // ============================================================
+        console.log('📱 PWA: Service Worker:', 'serviceWorker' in navigator ? '✅ Supported' : '❌ Not supported');
+        console.log('📱 PWA: Manifest:', document.querySelector('link[rel="manifest"]') ? '✅ Found' : '❌ Not found');
+        console.log('📱 PWA: HTTPS:', window.location.protocol === 'https:' || window.location.hostname === 'localhost' ? '✅ Secure' : '⚠️ Not secure');
+        console.log('📱 PWA: Device:', /android/i.test(navigator.userAgent) ? 'Android' : /iPhone/i.test(navigator.userAgent) ? 'iPhone' : 'Desktop');
+        console.log('📱 PWA: Standalone Mode:', window.matchMedia('(display-mode: standalone)').matches ? '✅ Yes' : '❌ No');
+
+        // ============================================================
+        // CACHE CHECK (For Debugging)
+        // ============================================================
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            console.log('✅ PWA: Controlled by service worker');
+        } else {
+            console.log('ℹ️ PWA: Not controlled by service worker (first load or page refresh)');
+        }
     </script>
 
     {% block scripts %}{% endblock %}
