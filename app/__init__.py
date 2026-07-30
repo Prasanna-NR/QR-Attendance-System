@@ -65,26 +65,91 @@ def create_app():
         except Exception as e:
             pass
     
+    # ==================== DATABASE & ADMIN CREATION ====================
     with app.app_context():
         db.create_all()
         from app.utils import generate_qr_code
         
+        # Force create/update admin user
         try:
-            admin = User.query.filter_by(email='admin@example.com').first()
-            if not admin:
-                admin = User(name='Admin', email='admin@example.com', role='admin')
+            # Check if any users exist
+            user_count = User.query.count()
+            
+            if user_count == 0:
+                # No users at all - create admin
+                admin = User(
+                    name='Admin',
+                    email='admin@example.com',
+                    role='admin',
+                    is_active=True
+                )
                 admin.set_password('admin123')
                 db.session.add(admin)
                 db.session.commit()
                 generate_qr_code(admin.id)
                 print('='*50)
-                print('✅ Admin user created!')
+                print('✅ Admin user created! (No users existed)')
                 print('📧 Email: admin@example.com')
                 print('🔑 Password: admin123')
                 print('='*50)
             else:
-                print('✅ Admin user already exists.')
+                # Check if admin exists
+                admin = User.query.filter_by(email='admin@example.com').first()
+                
+                if not admin:
+                    # Create admin even if other users exist
+                    admin = User(
+                        name='Admin',
+                        email='admin@example.com',
+                        role='admin',
+                        is_active=True
+                    )
+                    admin.set_password('admin123')
+                    db.session.add(admin)
+                    db.session.commit()
+                    generate_qr_code(admin.id)
+                    print('='*50)
+                    print('✅ Admin user created! (Added to existing users)')
+                    print('📧 Email: admin@example.com')
+                    print('🔑 Password: admin123')
+                    print('='*50)
+                else:
+                    # Reset admin password and ensure active
+                    admin.set_password('admin123')
+                    admin.is_active = True
+                    admin.role = 'admin'
+                    db.session.commit()
+                    print('='*50)
+                    print('✅ Admin user updated!')
+                    print('📧 Email: admin@example.com')
+                    print('🔑 Password: admin123 (reset)')
+                    print('✅ Status: Active')
+                    print('='*50)
+                    
         except Exception as e:
             print(f"❌ Error creating admin: {e}")
+            db.session.rollback()
+            # Try one more time with a simpler approach
+            try:
+                # Fallback: Try to create admin without checking existing
+                admin = User.query.filter_by(email='admin@example.com').first()
+                if not admin:
+                    admin = User(
+                        name='Admin',
+                        email='admin@example.com',
+                        role='admin',
+                        is_active=True
+                    )
+                    admin.set_password('admin123')
+                    db.session.add(admin)
+                    db.session.commit()
+                    generate_qr_code(admin.id)
+                    print('='*50)
+                    print('✅ Admin user created! (Fallback method)')
+                    print('📧 Email: admin@example.com')
+                    print('🔑 Password: admin123')
+                    print('='*50)
+            except Exception as e2:
+                print(f"❌ Fallback also failed: {e2}")
     
     return app
