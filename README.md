@@ -66,9 +66,3 @@ A production-ready web application built with Python Flask for automated attenda
 - Virtual environment (recommended)
 - Webcam (for QR scanning)
 
-### Setup Steps
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/qr-attendance-system.git
-cd qr-attendance-system
