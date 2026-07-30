@@ -4,7 +4,6 @@ from app import db
 from app.models import User, Attendance, Task
 from app.utils import generate_qr_code, generate_attendance_report, get_qr_code_data, OPENCV_AVAILABLE
 from datetime import datetime, date
-import os
 
 main = Blueprint('main', __name__)
 auth = Blueprint('auth', __name__)
@@ -263,59 +262,69 @@ def export_attendance():
 def manifest():
     """Serve PWA manifest file"""
     try:
-        return send_file('static/manifest.json', mimetype='application/json')
+        return send_from_directory('static', 'manifest.json', mimetype='application/json')
     except Exception as e:
         print(f"Error serving manifest: {e}")
-        # Return a default manifest if file not found
-        return jsonify({
-            "name": "QR Attendance System",
-            "short_name": "Attendance",
-            "display": "standalone",
-            "theme_color": "#667eea",
-            "background_color": "#ffffff",
-            "icons": [
-                {
-                    "src": "/static/icons/icon-192x192.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                }
-            ]
-        })
+        return jsonify({'error': 'Manifest not found'}), 404
 
 @main.route('/service-worker.js')
 def service_worker():
     """Serve PWA service worker file"""
     try:
-        return send_file('static/service-worker.js', mimetype='application/javascript')
+        return send_from_directory('static', 'service-worker.js', mimetype='application/javascript')
     except Exception as e:
         print(f"Error serving service worker: {e}")
-        # Return a minimal service worker
-        return """// Service Worker
-self.addEventListener('install', function(e) {
-    e.waitUntil(self.skipWaiting());
-});
-self.addEventListener('activate', function(e) {
-    e.waitUntil(self.clients.claim());
-});
-self.addEventListener('fetch', function(e) {
-    e.respondWith(fetch(e.request));
-});
-""", 200, {'Content-Type': 'application/javascript'}
+        return jsonify({'error': 'Service worker not found'}), 404
 
 @main.route('/offline')
 def offline():
     """Show offline page when user has no internet"""
     return render_template('offline.html')
 
-# ==================== PWA ICON ROUTE ====================
-@main.route('/static/icons/<path:filename>')
-def serve_icon(filename):
-    """Serve PWA icons from static/icons folder"""
+@main.route('/offline-attendance', methods=['POST'])
+@login_required
+def offline_attendance():
+    """Handle offline attendance marking"""
     try:
-        return send_from_directory('static/icons', filename)
+        data = request.get_json()
+        user_id = data.get('user_id') if data else None
+        
+        if not user_id:
+            user_id = current_user.id
+        else:
+            user_id = int(user_id)
+        
+        # Check if user exists
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        # Check if already marked today
+        today = date.today()
+        existing = Attendance.query.filter_by(user_id=user_id, date=today).first()
+        if existing:
+            return jsonify({'success': False, 'message': f'Attendance already marked for {user.name} today'}), 400
+        
+        # Mark attendance
+        now = datetime.now()
+        attendance = Attendance(
+            user_id=user_id,
+            date=today,
+            time=now.time(),
+            status='present'
+        )
+        db.session.add(attendance)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Attendance marked successfully',
+            'user': user.name,
+            'time': now.strftime('%H:%M:%S')
+        })
     except Exception as e:
-        print(f"Error serving icon {filename}: {e}")
-        return jsonify({'error': 'Icon not found'}), 404
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # ==================== ADMIN ROUTES ====================
 @main.route('/admin_dashboard')

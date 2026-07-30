@@ -273,7 +273,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- ==================== PWA SERVICE WORKER ==================== -->
+    <!-- ==================== PWA COMPLETE SCRIPT ==================== -->
     <script>
         // ============================================================
         // PWA INSTALLATION PROMPT
@@ -312,12 +312,20 @@
             
             navigator.serviceWorker.register('/service-worker.js')
                 .then(function(registration) {
-                    console.log('✅ Service Worker registered!');
+                    console.log('✅ Service Worker registered successfully!');
                     console.log('📋 Scope:', registration.scope);
                     
                     // Check for updates
                     registration.addEventListener('updatefound', function() {
                         console.log('🔄 New service worker found!');
+                        const newWorker = registration.installing;
+                        
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('🔄 New update available! Reload to update.');
+                                showUpdateNotification();
+                            }
+                        });
                     });
                 })
                 .catch(function(error) {
@@ -328,6 +336,33 @@
             if (navigator.serviceWorker.controller) {
                 console.log('✅ Controlled by service worker');
             }
+            
+            // ============================================================
+            // BACKGROUND SYNC - For offline attendance
+            // ============================================================
+            navigator.serviceWorker.ready.then(function(registration) {
+                // Register sync for attendance
+                if ('sync' in registration) {
+                    registration.sync.register('sync-attendance')
+                        .then(function() {
+                            console.log('✅ Background sync registered for attendance');
+                        })
+                        .catch(function(err) {
+                            console.error('❌ Background sync registration failed:', err);
+                        });
+                }
+            });
+            
+            // ============================================================
+            // HANDLE MESSAGES FROM SERVICE WORKER
+            // ============================================================
+            navigator.serviceWorker.addEventListener('message', function(event) {
+                console.log('📨 Message from Service Worker:', event.data);
+                if (event.data && event.data.type === 'sync-complete') {
+                    showSyncNotification('✅ Attendance synced successfully!');
+                }
+            });
+            
         } else {
             console.warn('⚠️ Service Workers not supported in this browser');
         }
@@ -375,6 +410,48 @@
         window.addEventListener('online', updateNetworkStatus);
         window.addEventListener('offline', updateNetworkStatus);
         setTimeout(updateNetworkStatus, 1000);
+
+        // ============================================================
+        // SHOW UPDATE NOTIFICATION
+        // ============================================================
+        function showUpdateNotification() {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            
+            const updateMsg = document.createElement('div');
+            updateMsg.className = 'alert alert-info alert-dismissible fade show';
+            updateMsg.innerHTML = `
+                <i class="fas fa-sync-alt me-2"></i>
+                <strong>New version available!</strong> 
+                <button onclick="location.reload()" class="btn btn-primary btn-sm ms-2">
+                    Update Now
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            container.prepend(updateMsg);
+        }
+
+        // ============================================================
+        // SHOW SYNC NOTIFICATION
+        // ============================================================
+        function showSyncNotification(message) {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            
+            const syncMsg = document.createElement('div');
+            syncMsg.className = 'alert alert-success alert-dismissible fade show';
+            syncMsg.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            container.prepend(syncMsg);
+            
+            setTimeout(() => {
+                syncMsg.classList.remove('show');
+                setTimeout(() => syncMsg.remove(), 300);
+            }, 5000);
+        }
 
         // ============================================================
         // PWA SUPPORT CHECK
