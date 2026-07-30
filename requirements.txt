@@ -12,3 +12,4 @@ python-dotenv==1.0.0
 opencv-python==4.8.0.74
 pyzbar==0.1.9
 numpy==1.24.3
+gunicorn==21.2.0 
