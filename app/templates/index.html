@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <h1 class="display-4 mb-4"><i class="fas fa-qrcode text-primary"></i> QR Attendance & Task Management</h1>
+                <p class="lead">Streamline your attendance tracking with QR technology</p>
+                <hr>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <i class="fas fa-user-plus fa-2x text-primary"></i>
+                            <h5>Easy Registration</h5>
+                            <p class="text-muted">Register and get your unique QR code instantly</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <i class="fas fa-camera fa-2x text-success"></i>
+                            <h5>Quick Scanning</h5>
+                            <p class="text-muted">Scan QR codes using webcam</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box">
+                            <i class="fas fa-chart-bar fa-2x text-info"></i>
+                            <h5>Detailed Reports</h5>
+                            <p class="text-muted">Generate and export attendance reports</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2"><i class="fas fa-user-plus me-2"></i>Get Started</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

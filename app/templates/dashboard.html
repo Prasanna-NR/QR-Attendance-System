@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white"><i class="fas fa-user me-2"></i>Profile</div>
+            <div class="card-body text-center">
+                <div class="display-1 text-primary"><i class="fas fa-user-circle"></i></div>
+                <h4>{{ current_user.name }}</h4>
+                <p class="text-muted">{{ current_user.email }}</p>
+                <span class="badge bg-info">{{ current_user.role|title }}</span>
+                <hr>
+                <div class="row">
+                    <div class="col-6"><h6>Total Attendance</h6><h3>{{ total_attendance }}</h3></div>
+                    <div class="col-6">
+                        <h6>Today's Status</h6>
+                        {% if is_marked %}<span class="badge bg-success">Present</span>
+                        {% else %}<span class="badge bg-warning">Not Marked</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white"><i class="fas fa-qrcode me-2"></i>Your QR Code</div>
+            <div class="card-body text-center">
+                {% if qr_data %}
+                    <img src="data:image/png;base64,{{ qr_data }}" alt="QR Code" style="max-width:200px;">
+                    <p class="mt-2 text-muted">Show this to others to mark your attendance</p>
+                    <p class="text-muted"><small>User ID: {{ current_user.id }}</small></p>
+                {% else %}
+                    <p>QR code not generated</p>
+                {% endif %}
+                <div class="mt-3">
+                     <div class="d-grid gap-3">
+                        <a href="{{ url_for('main.scan_qr') }}" class="btn btn-success">
+                            <i class="fas fa-camera me-2"></i>Scan QR Code
+                        </a>
+                        <a href="{{ url_for('main.mark_manual_attendance') }}" class="btn btn-primary">
+                            <i class="fas fa-hand-pointer me-2"></i>Mark My Attendance
+                        </a>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white"><i class="fas fa-tasks me-2"></i>Task Summary</div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6"><h5>Pending</h5><h3 class="text-warning">{{ pending_tasks }}</h3></div>
+                    <div class="col-6"><h5>Completed</h5><h3 class="text-success">{{ completed_tasks }}</h3></div>
+                </div>
+                <a href="{{ url_for('main.tasks') }}" class="btn btn-outline-info w-100 mt-2">Manage Tasks</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white"><i class="fas fa-clock me-2"></i>Recent Attendance</div>
+            <div class="card-body">
+                {% if recent_attendances %}
+                    <ul class="list-group">
+                        {% for att in recent_attendances %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ att.date.strftime('%Y-%m-%d') }}</span>
+                                <span class="badge bg-success">{{ att.time.strftime('%H:%M:%S') }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}<p class="text-muted text-center">No attendance records yet</p>{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

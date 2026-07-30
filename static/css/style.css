@@ -1,0 +1,186 @@
+/* Custom styles for QR Attendance System */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+footer {
+    margin-top: auto;
+}
+
+.feature-box {
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+
+.feature-box:hover {
+    transform: translateY(-5px);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border: none;
+    color: #333;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+}
+
+/* QR Scanner Styling */
+#scanner-container {
+    background: #000;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+#scanner-container video {
+    max-height: 400px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* Dashboard Cards */
+.dashboard-stat {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.dashboard-stat h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.dashboard-stat p {
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .dashboard-stat h3 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Task List */
+.list-group-item {
+    border-radius: 10px !important;
+    margin-bottom: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Form Styling */
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    padding: 12px 15px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+    border-color: #667eea;
+}
+
+/* Alert Styling */
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+/* Navbar Styling */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.8);
+    transition: color 0.3s;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+/* Admin Dashboard */
+.admin-stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.admin-stat-card .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.admin-stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-stat-card .stat-label {
+    color: #6c757d;
+    margin: 0;
+}

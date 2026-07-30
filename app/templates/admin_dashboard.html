@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-user-shield me-2"></i>Admin Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="admin-stat-card"><div class="stat-icon text-primary"><i class="fas fa-users"></i></div><h3 class="stat-number">{{ total_users }}</h3><p class="stat-label">Total Users</p></div></div>
+    <div class="col-md-3"><div class="admin-stat-card"><div class="stat-icon text-success"><i class="fas fa-calendar-check"></i></div><h3 class="stat-number">{{ total_attendance }}</h3><p class="stat-label">Total Attendance</p></div></div>
+    <div class="col-md-3"><div class="admin-stat-card"><div class="stat-icon text-warning"><i class="fas fa-tasks"></i></div><h3 class="stat-number">{{ total_tasks }}</h3><p class="stat-label">Total Tasks</p></div></div>
+    <div class="col-md-3"><div class="admin-stat-card"><div class="stat-icon text-danger"><i class="fas fa-clock"></i></div><h3 class="stat-number">{{ pending_tasks }}</h3><p class="stat-label">Pending Tasks</p></div></div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-user-check me-2"></i>Currently Logged In Users
+                <span class="badge bg-light text-dark ms-2">{{ logged_in_users|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if logged_in_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Last Activity</th><th>Status</th></tr></thead>
+                            <tbody>
+                                {% for user in logged_in_users %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>{{ user.name }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td><span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-info{% endif %}">{{ user.role|title }}</span></td>
+                                        <td>
+                                            {% if user.last_activity %}
+                                                {{ user.last_activity.strftime('%Y-%m-%d %H:%M:%S') }}
+                                                <br><small class="text-muted">{{ user.get_time_ago(user.last_activity) }}</small>
+                                            {% else %}
+                                                Never
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="badge bg-success"><i class="fas fa-circle me-1"></i>Online</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center"><i class="fas fa-user-slash me-2"></i>No users currently logged in</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white"><i class="fas fa-history me-2"></i>Recent Activity</div>
+            <div class="card-body">
+                {% if recent_attendance %}
+                    <div class="table-responsive"><table class="table table-striped"><thead><tr><th>#</th><th>User</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody>{% for att in recent_attendance %}<tr><td>{{ loop.index }}</td><td>{{ att.user.name }}</td><td>{{ att.date.strftime('%Y-%m-%d') }}</td><td>{{ att.time.strftime('%H:%M:%S') }}</td><td><span class="badge bg-success">{{ att.status|title }}</span></td></tr>{% endfor %}</tbody></table></div>
+                {% else %}<p class="text-muted text-center">No recent activity</p>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white"><i class="fas fa-users-cog me-2"></i>Quick Actions</div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('main.admin_users') }}" class="btn btn-outline-primary"><i class="fas fa-users me-2"></i>Manage Users</a>
+                    <a href="{{ url_for('main.admin_logged_in_users') }}" class="btn btn-outline-success"><i class="fas fa-user-check me-2"></i>View Logged In Users</a>
+                    <a href="{{ url_for('main.attendance_report') }}" class="btn btn-outline-info"><i class="fas fa-file-alt me-2"></i>View Reports</a>
+                    <a href="{{ url_for('main.export_attendance') }}" class="btn btn-outline-secondary"><i class="fas fa-download me-2"></i>Export All Data</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

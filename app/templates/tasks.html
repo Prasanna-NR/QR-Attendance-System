@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white"><i class="fas fa-plus me-2"></i>Add New Task</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3"><label for="title" class="form-label">Task Title</label><input type="text" class="form-control" id="title" name="title" required></div>
+                    <div class="mb-3"><label for="description" class="form-label">Description</label><textarea class="form-control" id="description" name="description" rows="3"></textarea></div>
+                    <div class="mb-3"><label for="priority" class="form-label">Priority</label><select class="form-control" id="priority" name="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+                    <div class="mb-3"><label for="due_date" class="form-label">Due Date</label><input type="date" class="form-control" id="due_date" name="due_date"></div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-plus me-2"></i>Add Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark"><i class="fas fa-clock me-2"></i>Pending Tasks</div>
+            <div class="card-body">
+                {% if pending_tasks %}
+                    {% for task in pending_tasks %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div><h5 class="mb-1">{{ task.title }}</h5><p class="mb-1 text-muted">{{ task.description or 'No description' }}</p>
+                                <small>Priority: <span class="badge {% if task.priority=='high' %}bg-danger{% elif task.priority=='medium' %}bg-warning{% else %}bg-info{% endif %}">{{ task.priority|title }}</span>
+                                {% if task.due_date %}<span class="ms-2">Due: {{ task.due_date.strftime('%Y-%m-%d') }}</span>{% endif %}</small>
+                            </div>
+                            <div>
+                                <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}" style="display:inline;"><button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>Complete</button></form>
+                                <form method="POST" action="{{ url_for('main.delete_task', task_id=task.id) }}" style="display:inline;" onsubmit="return confirm('Delete this task?')"><button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash me-1"></i></button></form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}<p class="text-muted text-center">No pending tasks</p>{% endif %}
+            </div>
+        </div>
+        {% if completed_tasks %}
+        <div class="card shadow">
+            <div class="card-header bg-success text-white"><i class="fas fa-check-circle me-2"></i>Completed Tasks</div>
+            <div class="card-body">
+                {% for task in completed_tasks %}
+                <div class="list-group-item"><div class="d-flex justify-content-between"><div><h5 class="mb-1">{{ task.title }}</h5><small>Completed: {{ task.completed_at.strftime('%Y-%m-%d %H:%M') }}</small></div></div></div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
